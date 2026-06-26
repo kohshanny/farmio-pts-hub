@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { StatusBadge } from '@/components/StatusBadge';
 import { formatSGD, formatDate } from '@/lib/format';
-import { updateOrder } from '@/app/actions/mutations';
+import { updateOrder, deleteOrder } from '@/app/actions/mutations';
 import type { Order } from '@/types/database';
-import { Pencil, X, Check } from 'lucide-react';
+import { Pencil, Trash2, X, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 function EditOrderModal({
@@ -190,6 +190,66 @@ function EditOrderModal({
   );
 }
 
+function DeleteOrderConfirm({
+  order,
+  onClose,
+}: {
+  order: Order;
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleDelete() {
+    setDeleting(true);
+    const result = await deleteOrder(order.id);
+    setDeleting(false);
+    if (!result.success) {
+      setError(result.error ?? 'Failed to delete');
+      return;
+    }
+    router.refresh();
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <div className="bg-surface border border-border rounded-2xl shadow-xl w-full max-w-sm">
+        <div className="px-6 py-5 space-y-3">
+          <h2 className="font-display text-lg text-primary">Delete order?</h2>
+          <p className="text-sm text-ink-soft">
+            This will permanently delete the order for{' '}
+            <span className="font-medium text-primary">
+              {order.customer?.customer_name ?? 'this customer'}
+            </span>{' '}
+            on {formatDate(order.order_date)} ({formatSGD(order.revenue_sgd)}). This cannot be
+            undone, and any commission tied to it will be removed too.
+          </p>
+          {error && (
+            <p className="text-sm text-clay bg-clay-soft rounded-lg px-3 py-2">{error}</p>
+          )}
+        </div>
+        <div className="flex gap-3 px-6 py-4 border-t border-border">
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="bg-clay text-white rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-60"
+          >
+            {deleting ? 'Deleting…' : 'Yes, delete'}
+          </button>
+          <button
+            onClick={onClose}
+            className="text-sm text-ink-soft border border-border rounded-lg px-4 py-2 hover:bg-bg"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function OrdersTableClient({
   orders,
   showAgentColumn = false,
@@ -200,11 +260,15 @@ export function OrdersTableClient({
   isInternal?: boolean;
 }) {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [deletingOrder, setDeletingOrder] = useState<Order | null>(null);
 
   return (
     <>
       {editingOrder && (
         <EditOrderModal order={editingOrder} onClose={() => setEditingOrder(null)} />
+      )}
+      {deletingOrder && (
+        <DeleteOrderConfirm order={deletingOrder} onClose={() => setDeletingOrder(null)} />
       )}
       <div className="bg-surface border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
@@ -254,13 +318,22 @@ export function OrdersTableClient({
                 </td>
                 {isInternal && (
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => setEditingOrder(order)}
-                      className="text-ink-soft hover:text-primary transition-colors"
-                      title="Edit order"
-                    >
-                      <Pencil size={14} />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setEditingOrder(order)}
+                        className="text-ink-soft hover:text-primary transition-colors"
+                        title="Edit order"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => setDeletingOrder(order)}
+                        className="text-ink-soft hover:text-clay transition-colors"
+                        title="Delete order"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </td>
                 )}
               </tr>
