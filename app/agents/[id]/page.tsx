@@ -7,6 +7,7 @@ import { formatSGD, formatDate } from '@/lib/format';
 import type { Agent, Order, Profile } from '@/types/database';
 import { AgentEditForm } from '@/components/AgentEditForm';
 import { LinkProfileForm } from '@/components/LinkProfileForm';
+import { RevenueChart } from '@/components/RevenueChart';
 
 export default async function AgentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -51,6 +52,12 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
     .filter((o) => o.commission_status === 'Pending')
     .reduce((sum, o) => sum + o.commission_amount, 0);
 
+  const chartOrders = allOrders.map((o) => ({
+    order_date: o.order_date,
+    revenue_sgd: o.revenue_sgd,
+    order_type: o.order_type,
+  }));
+
   return (
     <DashboardShell role={profile.role} userEmail={email}>
       <div className="space-y-6">
@@ -64,6 +71,7 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
+        {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-surface border border-border rounded-xl p-5">
             <p className="text-xs uppercase tracking-wide text-ink-soft font-medium">Total revenue</p>
@@ -78,6 +86,9 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ id
             <p className="font-display text-2xl text-gold mt-1">{formatSGD(commissionPending)}</p>
           </div>
         </div>
+
+        {/* Revenue chart */}
+        <RevenueChart orders={chartOrders} />
 
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-2 space-y-6">

@@ -73,6 +73,40 @@ export async function createOrder(input: CreateOrderInput) {
   return { success: true };
 }
 
+interface UpdateOrderInput {
+  order_date?: string;
+  payment_method?: string;
+  revenue_sgd?: number;
+  products?: string;
+  order_type?: string;
+  cac_sgd?: number;
+  order_status?: string;
+  commission_amount?: number;
+  commission_status?: string;
+}
+
+export async function updateOrder(orderId: string, input: UpdateOrderInput) {
+  const supabase = await createClient();
+
+  const updates: Record<string, unknown> = { ...input };
+  if (input.commission_status === 'Paid') {
+    updates.commission_paid_date = new Date().toISOString().slice(0, 10);
+  } else if (input.commission_status === 'Pending') {
+    updates.commission_paid_date = null;
+  }
+
+  const { error } = await supabase.from('orders').update(updates).eq('id', orderId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/orders');
+  revalidatePath('/commissions');
+  revalidatePath('/');
+  return { success: true };
+}
+
 interface CreateCustomerInput {
   customer_name: string;
   customer_contact_number?: string;
@@ -121,6 +155,20 @@ export async function createAgent(input: { name: string; phone_number?: string; 
   }
 
   revalidatePath('/agents');
+  return { success: true };
+}
+
+export async function deleteAgent(agentId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from('agents').delete().eq('id', agentId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/agents');
+  revalidatePath('/');
   return { success: true };
 }
 

@@ -2,11 +2,9 @@ import { getCurrentProfile } from '@/lib/auth';
 import { DashboardShell } from '@/components/DashboardShell';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { StatusBadge } from '@/components/StatusBadge';
-import { formatSGD } from '@/lib/format';
-import type { Agent, Order } from '@/types/database';
-import Link from 'next/link';
+import { AgentRosterTable } from '@/components/AgentRosterTable';
 import { NewAgentButton } from '@/components/NewAgentButton';
+import type { Agent, Order } from '@/types/database';
 
 export default async function AgentsPage() {
   const { profile, email } = await getCurrentProfile();
@@ -19,10 +17,13 @@ export default async function AgentsPage() {
   const { data: agents } = await supabase.from('agents').select('*').order('name').returns<Agent[]>();
   const { data: orders } = await supabase.from('orders').select('agent_id, revenue_sgd').returns<Order[]>();
 
-  const revenueByAgent = new Map<string, number>();
+  const revenueByAgentRaw = new Map<string, number>();
   (orders ?? []).forEach((o) => {
-    revenueByAgent.set(o.agent_id, (revenueByAgent.get(o.agent_id) ?? 0) + o.revenue_sgd);
+    revenueByAgentRaw.set(o.agent_id, (revenueByAgentRaw.get(o.agent_id) ?? 0) + o.revenue_sgd);
   });
+
+  // Convert to plain object for client component
+  const revenueByAgent = new Map(revenueByAgentRaw);
 
   return (
     <DashboardShell role={profile.role} userEmail={email}>
@@ -35,40 +36,7 @@ export default async function AgentsPage() {
           <NewAgentButton />
         </div>
 
-        <div className="bg-surface border border-border rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-ink-soft">
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Phone</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Total revenue</th>
-                <th className="px-4 py-3 font-medium">Monthly target</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(agents ?? []).map((agent) => (
-                <tr key={agent.id} className="border-b border-border last:border-0 hover:bg-bg/60">
-                  <td className="px-4 py-3">
-                    <Link href={`/agents/${agent.id}`} className="font-medium hover:text-primary hover:underline">
-                      {agent.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-ink-soft">{agent.phone_number ?? '—'}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={agent.status} />
-                  </td>
-                  <td className="px-4 py-3">{formatSGD(revenueByAgent.get(agent.id) ?? 0)}</td>
-                  <td className="px-4 py-3 text-ink-soft">
-                    {agent.monthly_revenue_target_retailer + agent.monthly_revenue_target_fnb > 0
-                      ? formatSGD(agent.monthly_revenue_target_retailer + agent.monthly_revenue_target_fnb)
-                      : '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AgentRosterTable agents={agents ?? []} revenueByAgent={revenueByAgent} />
       </div>
     </DashboardShell>
   );
