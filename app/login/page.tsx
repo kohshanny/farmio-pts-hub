@@ -38,7 +38,7 @@ export default function LoginPage() {
         return;
       }
       setMessage(
-        'Account created. A new account starts with agent-level access — an internal team member needs to grant internal access and link your agent profile before you can see other agents\u2019 data.'
+        'Account created. Please login again!\u2019 data.'
       );
       setLoading(false);
     }
