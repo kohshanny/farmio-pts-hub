@@ -270,7 +270,7 @@ export function OrdersTableClient({
       {deletingOrder && (
         <DeleteOrderConfirm order={deletingOrder} onClose={() => setDeletingOrder(null)} />
       )}
-      <div className="bg-surface border border-border rounded-xl overflow-hidden">
+      <div className="bg-surface border border-border rounded-xl overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-ink-soft">
@@ -317,7 +317,7 @@ export function OrdersTableClient({
                   <StatusBadge status={order.commission_status} />
                 </td>
                 {isInternal && (
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setEditingOrder(order)}
