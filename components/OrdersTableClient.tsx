@@ -134,7 +134,7 @@ function EditOrderModal({
               <input
                 type="number"
                 value={commissionAmount}
-                onChange={(e) => setCommissionStatus(e.target.value as 'Pending' | 'Paid')}
+                onChange={(e) =>setCommissionStatus(e.target.value as 'Pending' | 'Paid')}
                 className="w-full rounded-lg border border-border bg-bg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
