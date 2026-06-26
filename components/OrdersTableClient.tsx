@@ -98,7 +98,7 @@ function EditOrderModal({
               <label className="block text-xs font-medium mb-1 text-ink-soft">Order type</label>
               <select
                 value={orderType}
-                onChange={(e) => setOrderType(e.target.value)}
+                onChange={(e) => setOrderType(e.target.value as 'New' | 'Recurring')}
                 className="w-full rounded-lg border border-border bg-bg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option>New</option>
@@ -109,7 +109,7 @@ function EditOrderModal({
               <label className="block text-xs font-medium mb-1 text-ink-soft">Payment method</label>
               <select
                 value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                onChange={(e) => setPaymentMethod(e.target.value as 'Credit' | 'PayNow' | 'COD')}
                 className="w-full rounded-lg border border-border bg-bg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option>PayNow</option>
@@ -134,7 +134,7 @@ function EditOrderModal({
               <input
                 type="number"
                 value={commissionAmount}
-                onChange={(e) => setCommissionAmount(e.target.value)}
+                onChange={(e) =>setCommissionStatus(e.target.value as 'Pending' | 'Paid')}
                 className="w-full rounded-lg border border-border bg-bg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
@@ -142,7 +142,7 @@ function EditOrderModal({
               <label className="block text-xs font-medium mb-1 text-ink-soft">Order status</label>
               <select
                 value={orderStatus}
-                onChange={(e) => setOrderStatus(e.target.value)}
+                onChange={(e) => setOrderStatus(e.target.value as 'Paid' | 'Pending' | 'Cancelled')}
                 className="w-full rounded-lg border border-border bg-bg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option>Paid</option>
@@ -156,7 +156,7 @@ function EditOrderModal({
             <label className="block text-xs font-medium mb-1 text-ink-soft">Commission status</label>
             <select
               value={commissionStatus}
-              onChange={(e) => setCommissionStatus(e.target.value)}
+              onChange={(e) => setCommissionStatus(e.target.value as 'Pending' | 'Paid')}
               className="w-full rounded-lg border border-border bg-bg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               <option>Pending</option>

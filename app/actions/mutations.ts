@@ -107,6 +107,21 @@ export async function updateOrder(orderId: string, input: UpdateOrderInput) {
   return { success: true };
 }
 
+export async function deleteOrder(orderId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from('orders').delete().eq('id', orderId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/orders');
+  revalidatePath('/commissions');
+  revalidatePath('/');
+  return { success: true };
+}
+
 interface CreateCustomerInput {
   customer_name: string;
   customer_contact_number?: string;
