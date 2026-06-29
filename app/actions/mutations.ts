@@ -200,6 +200,7 @@ export async function linkProfileToAgent(profileId: string, agentId: string | nu
   }
 
   revalidatePath('/agents');
+  revalidatePath(`/agents/${agentId}`);
   revalidatePath('/config');
   return { success: true };
 }
