@@ -19,8 +19,12 @@ export function LinkProfileForm({
   async function handleLink() {
     if (!selected) return;
     setSaving(true);
-    await linkProfileToAgent(selected, agentId, 'agent');
+    const result = await linkProfileToAgent(selected, agentId, 'agent');
     setSaving(false);
+    if (!result.success) {
+      alert(result.error ?? 'Failed to link account');
+      return;
+    }
     router.refresh();
   }
 
