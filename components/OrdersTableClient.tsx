@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { StatusBadge } from '@/components/StatusBadge';
 import { formatSGD, formatDate } from '@/lib/format';
 import { updateOrder, deleteOrder } from '@/app/actions/mutations';
 import type { Order } from '@/types/database';
-import { Pencil, Trash2, X, Check } from 'lucide-react';
+import { Pencil, Trash2, X, Check, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 function EditOrderModal({
@@ -134,7 +134,7 @@ function EditOrderModal({
               <input
                 type="number"
                 value={commissionAmount}
-                onChange={(e) =>setCommissionStatus(e.target.value as 'Pending' | 'Paid')}
+                onChange={(e) => setCommissionAmount(e.target.value)}
                 className="w-full rounded-lg border border-border bg-bg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
@@ -261,6 +261,17 @@ export function OrdersTableClient({
 }) {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [deletingOrder, setDeletingOrder] = useState<Order | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredOrders = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return orders;
+    return orders.filter((order) => {
+      const agentName = order.agent?.name?.toLowerCase() ?? '';
+      const customerName = order.customer?.customer_name?.toLowerCase() ?? '';
+      return agentName.includes(q) || customerName.includes(q);
+    });
+  }, [orders, searchQuery]);
 
   return (
     <>
@@ -270,6 +281,28 @@ export function OrdersTableClient({
       {deletingOrder && (
         <DeleteOrderConfirm order={deletingOrder} onClose={() => setDeletingOrder(null)} />
       )}
+
+      {/* Search bar */}
+      <div className="relative mb-4 max-w-sm">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={showAgentColumn ? 'Search agent or customer…' : 'Search customer…'}
+          className="w-full rounded-lg border border-border bg-bg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-soft hover:text-primary"
+            title="Clear search"
+          >
+            <X size={14} />
+          </button>
+        )}
+      </div>
+
       <div className="bg-surface border border-border rounded-xl overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -287,17 +320,17 @@ export function OrdersTableClient({
             </tr>
           </thead>
           <tbody>
-            {orders.length === 0 && (
+            {filteredOrders.length === 0 && (
               <tr>
                 <td
                   colSpan={showAgentColumn ? (isInternal ? 10 : 9) : isInternal ? 9 : 8}
                   className="px-4 py-10 text-center text-ink-soft"
                 >
-                  No orders yet.
+                  {searchQuery ? `No orders match "${searchQuery}".` : 'No orders yet.'}
                 </td>
               </tr>
             )}
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr key={order.id} className="border-b border-border last:border-0 hover:bg-bg/60">
                 <td className="px-4 py-3 text-ink-soft whitespace-nowrap">{formatDate(order.order_date)}</td>
                 {showAgentColumn && (
