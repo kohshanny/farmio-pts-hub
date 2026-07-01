@@ -106,7 +106,6 @@ export function OrderEntryForm({
     setTimeout(() => setJustSaved(false), 2500);
 
     if (andAddAnother) {
-      // Keep agent + customer prefilled, reset the rest for fast repeat entry
       setRevenue('');
       setProducts('');
       setOrderDate(today);
@@ -124,7 +123,8 @@ export function OrderEntryForm({
 
   return (
     <form className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
+      {/* Date + Agent — stack on mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1.5">Date</label>
           <input
@@ -154,6 +154,7 @@ export function OrderEntryForm({
         </div>
       </div>
 
+      {/* Customer */}
       <div>
         <label className="block text-sm font-medium mb-1.5">Customer *</label>
         {!showNewCustomer ? (
@@ -188,7 +189,7 @@ export function OrderEntryForm({
               onChange={(e) => setNewCustomerName(e.target.value)}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 placeholder="Contact number (optional)"
                 value={newCustomerPhone}
@@ -227,7 +228,8 @@ export function OrderEntryForm({
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      {/* Payment / Revenue / Order type — stack on mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1.5">Payment method</label>
           <select
@@ -265,6 +267,7 @@ export function OrderEntryForm({
         </div>
       </div>
 
+      {/* Products */}
       <div>
         <label className="block text-sm font-medium mb-1.5">Products / order details</label>
         <textarea
@@ -276,7 +279,8 @@ export function OrderEntryForm({
         />
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      {/* CAC / Commission / Order status / Commission status — 2-col on mobile, 4-col on md+ */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1.5">CAC (SGD)</label>
           <input
@@ -324,9 +328,9 @@ export function OrderEntryForm({
         </div>
       </div>
 
-      {/* live calculated preview */}
+      {/* Live LTV preview */}
       {revenueNum > 0 && (
-        <div className="bg-gold-soft border border-gold/20 rounded-lg px-4 py-3 flex gap-8 text-sm">
+        <div className="bg-gold-soft border border-gold/20 rounded-lg px-4 py-3 flex flex-wrap gap-4 md:gap-8 text-sm">
           <div>
             <span className="text-ink-soft">Est. LTV: </span>
             <span className="font-medium">{formatSGD(ltv)}</span>
@@ -345,7 +349,8 @@ export function OrderEntryForm({
         </p>
       )}
 
-      <div className="flex gap-3 pt-2">
+      {/* Buttons — stack on mobile */}
+      <div className="flex flex-col sm:flex-row gap-3 pt-2">
         <button
           type="button"
           onClick={(e) => handleSubmit(e, true)}
