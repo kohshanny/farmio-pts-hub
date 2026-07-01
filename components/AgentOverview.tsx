@@ -46,24 +46,24 @@ export async function AgentOverview({ agentId }: { agentId: string }) {
     <div className="space-y-8">
       <div>
         <p className="text-xs uppercase tracking-wide text-ink-soft mb-1">Welcome back</p>
-        <h1 className="font-display text-3xl text-primary">{agent?.name ?? 'Your'} overview</h1>
+        <h1 className="font-display text-2xl md:text-3xl text-primary">{agent?.name ?? 'Your'} overview</h1>
         <p className="text-sm text-ink-soft mt-1">
           A clear view of your orders and what Farmio owes you.
         </p>
       </div>
 
-      {/* Commission trust hero */}
-      <div className="bg-surface border border-border rounded-2xl p-6">
+      {/* Commission trust hero — stacks vertically on mobile */}
+      <div className="bg-surface border border-border rounded-2xl p-5 md:p-6">
         <p className="text-xs uppercase tracking-wide text-ink-soft font-medium mb-4">
           Commission ledger
         </p>
-        <div className="grid grid-cols-2 gap-6">
-          <div className="border-r border-border pr-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="sm:border-r sm:border-border sm:pr-6">
             <div className="flex items-center gap-2 text-fresh mb-1">
               <Wallet size={16} />
               <span className="text-xs font-medium uppercase tracking-wide">Paid out</span>
             </div>
-            <p className="font-display text-4xl text-fresh">{formatSGD(commissionPaid)}</p>
+            <p className="font-display text-3xl md:text-4xl text-fresh">{formatSGD(commissionPaid)}</p>
             <p className="text-xs text-ink-soft mt-1">Already in your account</p>
           </div>
           <div>
@@ -71,7 +71,7 @@ export async function AgentOverview({ agentId }: { agentId: string }) {
               <Clock size={16} />
               <span className="text-xs font-medium uppercase tracking-wide">Pending</span>
             </div>
-            <p className="font-display text-4xl text-gold">{formatSGD(commissionPending)}</p>
+            <p className="font-display text-3xl md:text-4xl text-gold">{formatSGD(commissionPending)}</p>
             <p className="text-xs text-ink-soft mt-1">Owed, not yet paid</p>
           </div>
         </div>
@@ -83,7 +83,8 @@ export async function AgentOverview({ agentId }: { agentId: string }) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      {/* Stat cards — stack on mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard
           label="Total revenue"
           value={formatSGD(totalRevenue)}
@@ -107,6 +108,7 @@ export async function AgentOverview({ agentId }: { agentId: string }) {
         />
       </div>
 
+      {/* Recent orders */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-display text-xl text-primary">Recent orders</h2>
@@ -114,7 +116,7 @@ export async function AgentOverview({ agentId }: { agentId: string }) {
             View all →
           </Link>
         </div>
-        <div className="bg-surface border border-border rounded-xl overflow-hidden">
+        <div className="bg-surface border border-border rounded-xl overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-ink-soft">
@@ -135,10 +137,10 @@ export async function AgentOverview({ agentId }: { agentId: string }) {
               )}
               {recentOrders.map((order) => (
                 <tr key={order.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 text-ink-soft">{formatDate(order.order_date)}</td>
-                  <td className="px-4 py-3 font-medium">{order.customer?.customer_name ?? '—'}</td>
-                  <td className="px-4 py-3">{formatSGD(order.revenue_sgd)}</td>
-                  <td className="px-4 py-3">{formatSGD(order.commission_amount)}</td>
+                  <td className="px-4 py-3 text-ink-soft whitespace-nowrap">{formatDate(order.order_date)}</td>
+                  <td className="px-4 py-3 font-medium whitespace-nowrap">{order.customer?.customer_name ?? '—'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{formatSGD(order.revenue_sgd)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{formatSGD(order.commission_amount)}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={order.commission_status} />
                   </td>
